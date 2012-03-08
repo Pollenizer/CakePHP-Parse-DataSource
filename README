@@ -1,0 +1,56 @@
+CakePHP Parse Datasource
+Allows interfacing between the Parse REST API
+
+https://www.parse.com
+https://www.parse.com/docs/rest
+http://book.cakephp.org/2.0/en/core-utility-libraries/httpsocket.html
+
+INSTALLATION
+-------------
+Copy ParseSource.php into the app/Model/Datasource directory.
+
+CONFIGURATION
+-------------
+Within database.php add:
+
+    public $parse = array(
+        'datasource' => 'ParseSource',
+        'application_id' => 'xxxxxxxxx',
+        'rest_api_key' => 'xxxxxxxx',
+    );
+
+Create a model such as 'Parse.php' & add:
+
+    public $useDbConfig = 'parse';
+    public $useTable = false;
+
+USAGE
+-------------
+Initially it would be good to get your head around what's required per call according to : https://www.parse.com/docs/rest
+
+From here you can use the Datasource in the following way:
+    //Send a push notification
+    $data = array(
+        'body' => array(
+            'channel' => '1234', //user to push to?
+            'type' => 'ios', //ios/android
+            'data' => array(
+            //This data is an example
+                'alert' => 'Hey this is a push notification.',
+                'type' => 'notification',
+                'sound' => '1',
+            )
+        ));
+    $response = $this->push($data);
+    //$response == false ?
+    $response = $this->getError();
+Note : The datasource json encodes the data field, there is no need to do so. 
+
+//Making a different call
+    $data = array(
+        'method' => 'GET',
+    );
+    $this->removeHeader('Content-Type'); //This call doesn't require this header
+    // We can also use $this->setHeader(array('Content-Type' => 'application/json')); if an additional header is required
+    $response = $this->users($data);
+    //The same thing applies, if $response is false we can call $this->getError();
