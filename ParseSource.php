@@ -105,17 +105,24 @@ class ParseSource extends DataSource
             return $this->getError();
             break;
         case 'removeHeader' :
-            return $this->removeHeader();
+            return $this->removeHeader(array_pop($params));
             break;
         case 'setHeader' :
             return $this->setHeader(array_pop($params));
             break;
         }
+
         //Otherwise we process the query as normal
         $data = array(
-            'uri' => $this->restUrl . $type,
+            'uri' => array(
+                'scheme' => 'https',
+                'host' => 'api.parse.com',
+                'path' => '/1/' . $type
+            ),
             'header' => $this->defaultHeaders,
         );
+        $data = array_merge_recursive($data, array_pop($params));
+
         return $this->_processQuery($data); 
     }
 
@@ -160,14 +167,17 @@ class ParseSource extends DataSource
 
         try {
             $result = $this->connection->request($data);
+            $resultobj = json_decode($result->body, true);
+
             if ($result->code == 200) {
-                return json_decode($result->body, true);
+                return $resultobj;
+            } else {
+                $this->error = $resultobj['code'] . ' : ' . $resultobj['error'];
+                return false;
             }
         } catch (Exception $e) {
             $this->error = $e->getMessage();
             return false;
         }
-        $this->error = $result->code;
-        return false;
     }
 }

@@ -54,3 +54,17 @@ Note : The datasource json encodes the data field, there is no need to do so.
     // We can also use $this->setHeader(array('Content-Type' => 'application/json')); if an additional header is required
     $response = $this->users($data);
     //The same thing applies, if $response is false we can call $this->getError();
+
+// Login example
+    $this->Parse->removeHeader('Content-Type');
+    $data = array(
+        'method' => 'GET',
+        'uri' => array(
+            'query' => array(
+                'username' => $email,
+                'password' => $password
+            )
+        )
+    );
+
+    $this->Parse->login($data);
